@@ -4,11 +4,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Data (Stora filer)
+# Data (Ignorera rådata men tillåt rensad data för LFS)
 2026 - Quandify/
-cleaned_data/
-*.parquet
-*.csv
 
 # OS
 .DS_Store
