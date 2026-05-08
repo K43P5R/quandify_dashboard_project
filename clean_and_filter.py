@@ -35,9 +35,9 @@ def process_files():
             
             # --- FILTRERING ---
             
-            # 2. Signalstyrka: Ta bort < 100 samt raden före och efter
-            # Hitta index för rader med signal < 100
-            low_signal_indices = df.index[df[col_signal] < 100].tolist()
+            # 2. Signalstyrka: Ta bort < 99 samt raden före och efter
+            # Hitta index för rader med signal < 99
+            low_signal_indices = df.index[df[col_signal] < 99].tolist()
             
             # Skapa ett set av index att ta bort (index, index-1, index+1)
             indices_to_remove = set()
