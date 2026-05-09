@@ -51,6 +51,15 @@ def process_files():
             for col in [col_temp, col_ambient, col_signal, col_flow]:
                 df[col] = pd.to_numeric(df[col], errors='coerce')
             
+            # --- NY LOGIK: Fyll i gles data (var 3:e rad) ---
+            # Vi fyller i ambient, signal och eventuell stDev så att varje rad har ett värde
+            sparse_cols = [col_ambient, col_signal]
+            if 'stDev flowLogS' in df.columns:
+                df['stDev flowLogS'] = pd.to_numeric(df['stDev flowLogS'], errors='coerce')
+                sparse_cols.append('stDev flowLogS')
+            
+            df[sparse_cols] = df[sparse_cols].ffill().bfill()
+            
             df['Time'] = pd.to_datetime(df['Time'], errors='coerce')
             
             # --- FILTRERING ---
