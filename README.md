@@ -66,8 +66,8 @@ Rådata (CSV) från mappen `2026 - Quandify` konverteras till Parquet med DuckDB
 En interaktiv Streamlit-dashboard som utför analys i realtid.
 * **Detektering:** Identifierar stabila perioder (nollflöde) och letar efter avvikelser där vattentemperaturen inte konvergerar mot omgivningen ("Thermal Leak").
 * **K-Faktor Beräkning:** Använder linjär regression på logaritmerade temperaturskillnader för att automatiskt beräkna avsvalningskonstanten ($k$).
-* **Läckagekalkylator:** Beräknar ett estimerat läckageflöde (L/h) baserat på den termiska modellen:
-  $$\text{Flow} = k \cdot \frac{T_{ambient} - T_{pipe}}{T_{pipe} - T_{incoming}}$$
+* **Läckagekalkylator:** Beräknar ett estimerat läckageflöde (L/h) baserat på den termiska modellen och en rörvolym på 0.28 liter:
+  $$\text{Flow} = (k \cdot 0.28) \cdot \frac{T_{ambient} - T_{pipe}}{T_{pipe} - T_{incoming}}$$
 
 ## 7. Instruktioner för körning
 1. **Miljö:** Skapa och aktivera venv: `python -m venv venv` och `source venv/bin/activate`

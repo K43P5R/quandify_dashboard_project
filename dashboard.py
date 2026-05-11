@@ -266,7 +266,7 @@ if selected_file:
                 in_ti = st.number_input("Inkommande (°C)", float(incoming_t), step=0.1, key=f"ti{t_key}_{p_idx}")
                 st.markdown('</div>', unsafe_allow_html=True)
                 
-                flow = in_k * ((in_ta - in_tp) / (in_tp - in_ti)) if (in_tp - in_ti) != 0 else 0.0
+                flow = (in_k * 0.28) * ((in_ta - in_tp) / (in_tp - in_ti)) if (in_tp - in_ti) != 0 else 0.0
                 st.metric("Beräknat Läckageflöde", f"{flow:.3f} L/h")
                 
                 st.markdown(f"""
