@@ -53,27 +53,32 @@ $$\ln(|T - T_{ambient}|) = -kt + \ln(\Delta T_0)$$
 
 ## 6. Genomförda Steg och Pipeline
 
-### 1. Ingestion och Rening (`convert_data.py`)
-Rådata (CSV) konverteras till Parquet med DuckDB. 
-* **Rening:** Filtrerar bort dåliga installationer (`signalStrength < 100`).
-* **Typning:** Säkerställer att `Time` är TIMESTAMP och numeriska värden är FLOAT.
-* **Flöde:** `flowLph` bibehålls med originalvärden (inga absolutbelopp) för att kunna identifiera felmonteringar eller backflöden.
+### 1. Ingestion och Rening (`clean_and_filter.py`)
+Rådata (CSV) från mappen `2026 - Quandify` konverteras till Parquet med DuckDB för snabbare åtkomst.
+* **Gles data:** Fyller i (forward/backward fill) värden för omgivningstemperatur och signalstyrka som ofta samplas mer sällan.
+* **Rening:** 
+    * Tar bort rader med låg signalstyrka (`signalStrength < 99`) samt närliggande datapunkter för att undvika brus.
+    * Filtrerar bort orimliga vattentemperaturer (utanför intervallet 0.1 - 70°C).
+* **Global Validering:** Förkastar hela filer där medeltemperaturen på vattnet är högre än omgivningen (vilket tyder på felaktig installation eller mätfel).
+* **Export:** Sparar rensad data i `cleaned_data/`.
 
-### 2. Analys av Känd Läcka (`analyze_leak.py`)
-Vi använder en specifik fil med en bekräftad läcka för att kalibrera modellen. 
-* **Logik:** Identifierar nollflödesperioder (>40 min) och beräknar $k$ samt $R^2$ för varje fönster.
-* **Resultat:** En god passform ($R^2 > 0.8$) bekräftar att Newtons lag är tillämpbar på systemet.
-
-### 3. Skalning och Dashboard (`generate_dashboard_data.py` & `app.py`)
-Processering av ca 8 000 nollflödesperioder över 49 enheter.
-* **Master-fil:** Sammanställer $k$-värden och anomalier i `summary_stats.csv`.
-* **Dashboard:** En Streamlit-applikation för interaktiv analys av trender och visualisering av rådata för specifika enheter.
+### 2. Analys och Visualisering (`dashboard.py`)
+En interaktiv Streamlit-dashboard som utför analys i realtid.
+* **Detektering:** Identifierar stabila perioder (nollflöde) och letar efter avvikelser där vattentemperaturen inte konvergerar mot omgivningen ("Thermal Leak").
+* **K-Faktor Beräkning:** Använder linjär regression på logaritmerade temperaturskillnader för att automatiskt beräkna avsvalningskonstanten ($k$).
+* **Läckagekalkylator:** Beräknar ett estimerat läckageflöde (L/h) baserat på den termiska modellen:
+  $$\text{Flow} = k \cdot \frac{T_{ambient} - T_{pipe}}{T_{pipe} - T_{incoming}}$$
 
 ## 7. Instruktioner för körning
 1. **Miljö:** Skapa och aktivera venv: `python -m venv venv` och `source venv/bin/activate`
-2. **Installation:** `pip install duckdb pandas streamlit matplotlib plotly`
-3. **Konvertering:** `python convert_data.py`
-4. **Analys:** `python generate_dashboard_data.py`
-5. **Dashboard:** `streamlit run app.py`
+2. **Installation:** `pip install -r requirements.txt` (Säkerställ att `duckdb`, `pandas`, `streamlit`, `plotly` och `pyarrow` finns med).
+3. **Datahantering:** Kör rensningsskriptet för att förbereda data:
+   ```bash
+   python clean_and_filter.py
+   ```
+4. **Starta Dashboard:**
+   ```bash
+   streamlit run dashboard.py
+   ```
 
 ---
